@@ -20,10 +20,10 @@ const failedItems = [];
 const interval = setInterval(() => {
   console.log(page);
   pool
-    .query('SELECT meme_url, meme_name FROM memes LIMIT $1 OFFSET $2', [
-      perBatch,
-      `${perBatch * page + 1}`,
-    ])
+    .query(
+      "SELECT meme_url, meme_name FROM memes WHERE date_created = '2020-12-27' LIMIT $1 OFFSET $2",
+      [perBatch, `${perBatch * page + 1}`]
+    )
     .then((res) => {
       if (res && res.rows.length) {
         res.rows.forEach((row) => {

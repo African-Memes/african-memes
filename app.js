@@ -22,7 +22,7 @@ const formatTags = (tags) => {
 };
 
 const failedItems = [];
-const currentPage = 16;
+const currentPage = 0;
 const perPage = 250;
 
 const endpoint = `https://api.memes.zikoko.com:8108/collections/meme/documents/search?q=*&query_by=title,%20source,%20tags&per_page=${perPage}&page=${
@@ -50,13 +50,19 @@ const saveMemeToDB = (meme, index) => {
         `Inserted memes for page: ${currentPage + 1}, index: ${index}\n`
       )
     )
-    .catch((err) =>
+    .catch((err) => {
+      failedItems.push({ meme, error: err.detail });
+      jsonfile.writeFile('./error-logs/list.json', failedItems, (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
       console.log(
         `Failed to insert meme for page: ${
           currentPage + 1
         }, index: ${index}\n${err}\n\n`
-      )
-    );
+      );
+    });
 };
 
 axios({
@@ -80,10 +86,11 @@ axios({
         const source = document.source;
         const title = document.title;
         const color = document.color;
+        const id = document.id;
 
         const field = { meme_url, width, height, tags, source, title, color };
 
-        const memeTitle = `african-meme-${perPage * currentPage + index}`;
+        const memeTitle = `african-meme-${id}`;
         const fields = {
           ...field,
           title: title || memeTitle,
@@ -98,11 +105,5 @@ axios({
   })
   .catch(() => {
     console.log(err);
-    failedItems.push({ meme, error: err });
   });
 
-jsonfile.writeFile('./error-logs/list.json', failedItems, (err) => {
-  if (err) {
-    console.log(err);
-  }
-});

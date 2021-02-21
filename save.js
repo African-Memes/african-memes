@@ -16,12 +16,14 @@ let page = 0;
 const perBatch = 10;
 
 const failedItems = [];
+// Date format should be YYYY-MM-DD
+const dateToDownloadFrom = process.argv.slice(2)[0].split('=')[1].trim();
 
 const interval = setInterval(() => {
   console.log(page);
   pool
     .query(
-      "SELECT meme_url, meme_name FROM memes WHERE date_created = '2020-12-27' LIMIT $1 OFFSET $2",
+      `SELECT meme_url, meme_name FROM memes WHERE date_created = '${dateToDownloadFrom}' LIMIT $1 OFFSET $2`,
       [perBatch, `${perBatch * page + 1}`]
     )
     .then((res) => {
